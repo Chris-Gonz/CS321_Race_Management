@@ -9,6 +9,7 @@ This is the git hub page for the Race Management Team. Repository used to keep b
 ## Team Members:
 
 * Chris
+* Dheer
 * (Please add names)
 
 ---
