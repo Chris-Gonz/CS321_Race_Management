@@ -10,8 +10,9 @@ This is the git hub page for the Race Management Team. Repository used to keep b
 
 * Chris
 * Dheer
+* Dan Lee
 * Robert Dash
-* (Please add names)
+
 
 ---
 ## Technology
