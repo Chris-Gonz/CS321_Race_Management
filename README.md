@@ -12,6 +12,7 @@ This is the git hub page for the Race Management Team. Repository used to keep b
 * Dheer
 * Dan Le
 * Qasim
+* Robert Dash
 
 ---
 ## Technology
