@@ -1,0 +1,6 @@
+- have them connect to our nodejs endpoint with POST request and also including their server address to check in
+- store their info on a racer object
+
+- when ready to start, send POST request to racer address ready to begin 
+
+- look at gstreamer implementations for camera support
