@@ -1,6 +1,9 @@
-import '@/styles/globals.css'
-import type { AppProps } from 'next/app'
+import "@/styles/globals.css";
+import type { AppProps } from "next/app";
+import { useEffect, useState } from "react";
 
 export default function App({ Component, pageProps }: AppProps) {
-  return <Component {...pageProps} />
+  const [isRunning, setIsRunning] = useState(false);
+
+  return <Component {...pageProps} isRunning={isRunning} setIsRunning={setIsRunning} />;
 }
