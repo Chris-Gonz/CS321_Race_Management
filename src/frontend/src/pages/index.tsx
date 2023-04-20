@@ -3,18 +3,44 @@ import StopWatch from "@/components/StopWatch";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
+import { io, Socket } from "socket.io-client";
 
-export default function Home({ isRunning }: any) {
+let socket: Socket;
+export default function Home() {
+	const [isRunning, setIsRunning] = useState(false);
+
 	const [time, setTime] = useState(0);
 
+	// Use effect for setting the time
 	useEffect(() => {
-		console.log(isRunning);
-	}, [isRunning]);
+		socketInitializer();
+	}, []);
 
+	// Socket initializer
+	const socketInitializer = async () => {
+		await fetch("/api/socket");
+		const socket = io();
+
+		socket.on("connect", () => {
+			setIsRunning(localStorage.getItem("toggle") === "true");
+			setTime(parseInt(localStorage.getItem("time") || "0"));
+			console.log("connected");
+		});
+		socket.on("get-toggle", (toggle) => {
+			setIsRunning(toggle);
+		});
+		socket.on("clear-time", () => {
+			setTime(0);
+		});
+		return null;
+	};
+
+	// For time interval
 	useEffect(() => {
 		let intervalId: any;
 		if (isRunning) {
-			intervalId = setInterval(() => setTime(time + 1), 10);
+			intervalId = setInterval(() => setTime(time + 10), 10);
+			localStorage.setItem("time", time.toString());
 		}
 		return () => clearInterval(intervalId);
 	}, [isRunning, time]);

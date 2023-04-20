@@ -1,5 +1,7 @@
-- have them connect to our nodejs endpoint with POST request and also including their server address to check in
+- have them connect to our nodejs endpoint with POST request with their racer team number, team member names too possibly
 - store their info on a racer object
+    - team number
+    - member names
 
 - when ready to start, send POST request to racer address ready to begin 
 
