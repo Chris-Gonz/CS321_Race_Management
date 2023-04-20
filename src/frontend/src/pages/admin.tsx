@@ -79,7 +79,12 @@ export default function Admin() {
 				>
 					{isRunning ? "Stop" : "Start"}
 				</button>
-				<button className="py-2 px-9 bg-slate-500">Reset</button>
+				<button className="py-2 px-9 bg-slate-500" onClick={() => {
+					localStorage.setItem("toggle", "false");
+					socket.emit("update-toggle", false);
+					localStorage.setItem("time", "0");
+					socket.emit("clear-time");
+				}}>Reset</button>
 			</div>
 		</div>
 	);

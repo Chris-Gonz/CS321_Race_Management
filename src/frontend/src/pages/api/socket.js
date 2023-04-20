@@ -12,11 +12,13 @@ export default function SocketHandler(req, res) {
 	res.socket.server.io = io;
 
 	io.on("connection", (socket) => {
-		console.log(socket.id);
 		socket.on("update-toggle", (toggle) => {
 			io.emit("get-toggle", toggle);
-			console.log("from socket, " + toggle);
 		});
+
+		socket.on("clear-time", (time) => {
+			io.emit("clear-time", time);
+		})
 	});
 
 	res.end();
