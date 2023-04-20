@@ -17,8 +17,9 @@ export default function Admin() {
 	// Intialize socket handler
 	const socketInitializer = async () => {
 		await fetch("/api/socket");
-		socket = io('localhost:3000');
+		socket = io();
 		socket.on("connect", () => {
+			setIsRunning(localStorage.getItem("toggle") === "true");
 			console.log("connected");
 		});
 
@@ -72,6 +73,7 @@ export default function Admin() {
 				<button
 					className="py-2 px-9 bg-slate-500 "
 					onClick={() => {
+						localStorage.setItem("toggle", isRunning ? "false" : "true");
 						socket.emit("update-toggle", isRunning ? false : true);
 					}}
 				>
