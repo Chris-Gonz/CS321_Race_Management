@@ -20,12 +20,10 @@ export default function Admin() {
 		socket = io();
 		socket.on("connect", () => {
 			setIsRunning(localStorage.getItem("toggle") === "true");
-			console.log("connected");
 		});
 
 		socket.on("get-toggle", (toggle) => {
 			setIsRunning(toggle);
-			console.log("from get-toggle " + toggle);
 		});
 
 		return null;
@@ -57,7 +55,7 @@ export default function Admin() {
 							<div key={i} className="flex justify-center p-12 rounded-3xl w-80">
 								<button key={i} className="font-black text-white ">
 									<span
-										className={Cars.connection ? "bg-red-700 rounded-full p-3 hover:bg-red-900" : "bg-gray-600 rounded-full p-3 "}
+										className={Cars.connection ? "bg-red-600 rounded-full p-3 hover:bg-red-900" : "bg-gray-600 rounded-full p-3 "}
 									>
 										Disconnect
 									</span>
@@ -65,26 +63,32 @@ export default function Admin() {
 							</div>
 						))}
 					</div>
-					<button className="py-3 text-3xl font-black text-white bg-transparent bg-green-800 rounded-full hover:bg-green-900 px-52">
-						Start
-					</button>
-				</div>
 
-				<button
-					className="py-2 px-9 bg-slate-500 "
-					onClick={() => {
-						localStorage.setItem("toggle", isRunning ? "false" : "true");
-						socket.emit("update-toggle", isRunning ? false : true);
-					}}
-				>
-					{isRunning ? "Stop" : "Start"}
-				</button>
-				<button className="py-2 px-9 bg-slate-500" onClick={() => {
-					localStorage.setItem("toggle", "false");
-					socket.emit("update-toggle", false);
-					localStorage.setItem("time", "0");
-					socket.emit("clear-time");
-				}}>Reset</button>
+					<div className="flex w-1/2 justify-center items-center gap-5">
+						<button
+							className={`py-3 px-7 text-xl font-black text-white ${isRunning ? "bg-red-600" : "bg-green-800"}  rounded-2xl hover:${
+								isRunning ? "bg-red-700" : "bg-green-900"
+							}`}
+							onClick={() => {
+								localStorage.setItem("toggle", isRunning ? "false" : "true");
+								socket.emit("update-toggle", isRunning ? false : true);
+							}}
+						>
+							{isRunning ? "Stop" : "Start"}
+						</button>
+						<button
+							className="py-3 px-7 text-xl font-black text-white bg-gray-400 rounded-2xl hover:bg-gray-500"
+							onClick={() => {
+								localStorage.setItem("toggle", "false");
+								socket.emit("update-toggle", false);
+								localStorage.setItem("time", "0");
+								socket.emit("clear-time");
+							}}
+						>
+							Reset
+						</button>
+					</div>
+				</div>
 			</div>
 		</div>
 	);

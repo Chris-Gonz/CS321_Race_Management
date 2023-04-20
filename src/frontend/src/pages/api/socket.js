@@ -2,12 +2,11 @@ import { Server } from "socket.io";
 
 export default function SocketHandler(req, res) {
 	if (res.socket.server.io) {
-		console.log("Already set up");
 		res.end();
 		return;
 	}
 
-	console.log("Setting up");
+	console.log("Setting up socket.io server");
 	const io = new Server(res.socket.server);
 	res.socket.server.io = io;
 
@@ -18,7 +17,7 @@ export default function SocketHandler(req, res) {
 
 		socket.on("clear-time", (time) => {
 			io.emit("clear-time", time);
-		})
+		});
 	});
 
 	res.end();
