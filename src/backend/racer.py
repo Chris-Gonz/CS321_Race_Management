@@ -1,5 +1,5 @@
 import socketio
-
+import socket
 sio = socketio.Client()
 
 @sio.event

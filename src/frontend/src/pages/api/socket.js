@@ -16,8 +16,16 @@ export default function SocketHandler(req, res) {
 			io.emit("get-toggle", toggle);
 		});
 
-		socket.on("clear-time", (time) => {
+		socket.on("start", () => {
+			io.emit("start-time");
+		});
+
+		socket.on("clear", (time) => {
 			io.emit("clear-time", time);
+		});
+
+		socket.on("record-lap", (index) => {
+			io.emit("get-lap-time", index);
 		});
 
 		// Racer listeners
@@ -26,9 +34,7 @@ export default function SocketHandler(req, res) {
 			io.emit("message", "Hello client!");
 		});
 
-		socket.on("setup", (data) => {
-
-		})
+		socket.on("setup", (data) => {});
 
 		// need start/stop signal from us to them
 
