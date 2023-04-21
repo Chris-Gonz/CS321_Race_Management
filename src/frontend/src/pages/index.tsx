@@ -32,6 +32,7 @@ export default function Home() {
 		socket.on("clear-time", () => {
 			setTime(0);
 		});
+
 		return null;
 	};
 
@@ -58,11 +59,14 @@ export default function Home() {
 				<div className="h-full w-[95%] flex justify-center items-center">
 					{Cars.map((Cars, i) => (
 						<div key={i} className="flex flex-col items-center w-full h-full gap-3 mx-9">
-							<div className="flex gap-2 font-mono text-5xl font-black text-center text-white">
+							<div className="flex gap-7 font-mono text-5xl font-black text-center text-white">
 								<span>{Cars.name}</span>
-								<span>{Cars.icons}</span>
+								<div className="flex items-center justify-center">
+									<div className="h-[15px] w-[15px] bg-red-500 rounded-full"></div>
+								</div>
 							</div>
-							<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-2 h-3/5 rounded-3xl">
+							<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-1 h-4/5 rounded-3xl">
+								{/*video feed iframe  src="https://localhost:8889/webcam"*/}
 								<Image src={Cars.image} alt={"Live Feed Picture"} className="object-cover w-full h-auto" width={500} height={500} />
 							</div>
 							<span className="text-3xl font-bold text-white">
