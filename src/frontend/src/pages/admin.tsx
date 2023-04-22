@@ -1,13 +1,15 @@
-import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
-import { Car } from "@/interface/Cars";
+import { Car } from "@/interface/Car";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import { log } from "util";
 
 let socket: Socket;
 
 export default function Admin() {
+	const [isLoading, setIsLoading] = useState(true);
+	// List of cars
 	const [cars, setCars] = useState<Car[]>([]);
 
 	// Use state for start/stop toggle button
@@ -15,9 +17,11 @@ export default function Admin() {
 
 	// Use state for finish1
 	const [finish1, setFinish1] = useState(false);
-
 	// Use state for finish2
 	const [finish2, setFinish2] = useState(false);
+
+	// Initial render
+	const initialRender = useRef(true);
 
 	// Initialize socket
 	useEffect(() => {
@@ -31,54 +35,60 @@ export default function Admin() {
 
 		socket.on("connect", () => {
 			setStart(localStorage.getItem("start") === "true");
+			console.log(localStorage.getItem("cars"));
+			setCars(JSON?.parse(localStorage.getItem("cars") || "[]"));
+			setIsLoading(false);
 		});
 
-		// Setup new racer
-		socket.on("setup-racer", (data) => {
-			createNewRacer(data);
+		// Gets cars data
+		socket.on("get-cars", (Cars: Car[]) => {
+			// If cars length is the same, meaning no update, return
+			if (Cars.length == cars.length) {
+				return;
+			}
+			setCars(Cars);
+		});
+
+		// Add new racer
+		socket.on("add-racer", (data: Car) => {
+			setCars((cars) => [...cars, data]);
 		});
 
 		return null;
 	};
 
-	// Create new racer
-	const createNewRacer = (data: any) => {
-		const newRacer: Car = {
-			carNum: data.number,
-			name: data.name,
-			link: "", // link to video feed?
-			image: "", // placeholder for webcam
-			currentSpeed: 0,
-			connection: true,
-			LapTime: 0,
-		};
-		const updatedObjects = [...cars, newRacer];
-		setCars(updatedObjects);
-		socket.emit("update-cars", updatedObjects);
-	};
+	// Send emit to update cars when cars list changes
+	useEffect(() => {
+		if (initialRender.current) {
+			initialRender.current = false;
+			console.log("initial render skipped");
+			return;
+		}
+		localStorage.setItem("cars", JSON.stringify(cars));
+		socket?.emit("update-cars", cars);
+		console.log(cars);
+	}, [cars]);
 
 	// Remove racer
 	const removeRacer = (index: number) => {
-		let indexToRemove = -1;
 		for (let i = 0; i < cars.length; i++) {
 			if (cars[i] === cars[index]) {
-				indexToRemove = i;
+				const updatedObjects = [...cars];
+				updatedObjects.splice(i, 1);
+				setCars(updatedObjects);
+				localStorage.setItem("cars", JSON.stringify(updatedObjects));
+				// Need to set local storage later somehow
 				break;
 			}
 		}
-		if (indexToRemove !== -1) {
-			const updatedObjects = [...cars];
-			updatedObjects.splice(indexToRemove, 1);
-			setCars(updatedObjects);
-			socket.emit("update-cars", updatedObjects);
-			// Need to set local storage later somehow
-		}
 	};
 
-	return (
+	return !isLoading ? (
 		<div className="flex w-full h-full bg-slate-900">
 			<Link href="/">
-				<button className="absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">Main</button>
+				<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
+					Main Panel
+				</button>
 			</Link>
 			<div className="flex items-center justify-center w-full ">
 				<div className="relative flex flex-col items-center gap-12 p-10 bg-gray-800 rounded-3xl">
@@ -93,7 +103,7 @@ export default function Admin() {
 									<div className="flex flex-col gap-3 items-center">
 										<div key={i} className="p-12 bg-white rounded-3xl w-80 ">
 											<div className="flex flex-col items-center text-3xl font-bold gap-x-5 gap-y-2">
-												<span>{car.name}</span>
+												<span>{car.name + " " + car.carNum}</span>
 												<span
 													className={`
 											${car.connection ? "text-green-500" : "text-red-500"} text-base`}
@@ -189,5 +199,7 @@ export default function Admin() {
 				</div>
 			</div>
 		</div>
+	) : (
+		<div className="w-full h-full bg-slate-900"></div>
 	);
 }

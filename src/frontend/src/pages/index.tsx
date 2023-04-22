@@ -1,19 +1,21 @@
 import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
-import { Car } from "@/interface/Cars";
+import { Car } from "@/interface/Car";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
 export default function Home() {
+	const [isLoading, setIsLoading] = useState(true);
 	const [cars, setCars] = useState<Car[]>([]);
 	const [isRunning1, setIsRunning1] = useState(false);
 	const [isRunning2, setIsRunning2] = useState(false);
 	const [time1, setTime1] = useState(0);
 	const [time2, setTime2] = useState(0);
-
+	// Initial render
+	const initialRender = useRef(true);
 	// Use effect for setting the time
 	useEffect(() => {
 		socketInitializer();
@@ -25,12 +27,15 @@ export default function Home() {
 		const socket = io();
 
 		socket.on("connect", () => {
+			setCars(JSON.parse(localStorage.getItem("cars") || "[]"));
 			setIsRunning1(localStorage.getItem("running1") === "true");
 			setIsRunning2(localStorage.getItem("running2") === "true");
 			setTime1(parseInt(localStorage.getItem("time1") || "0"));
 			setTime2(parseInt(localStorage.getItem("time2") || "0"));
 			console.log("connected");
+			setIsLoading(false);
 		});
+
 		socket.on("start-time", () => {
 			setIsRunning1(true);
 			setIsRunning2(true);
@@ -43,10 +48,11 @@ export default function Home() {
 			} else {
 				setIsRunning2(false);
 			}
-			let newArr = [...Cars]; // copying the old datas array
-			// a deep copy is not needed as we are overriding the whole object below, and not setting a property of it. this does not mutate the state.
-			newArr[index].LapTime = index == 0 ? time1 : time2; // replace e.target.value with whatever you want to change it to
-			setCars(newArr);
+			let car: Car = cars[index] || {};
+			if (car !== undefined) {
+				car.LapTime = index == 0 ? time1 : time2;
+			}
+			setCars((cars) => [...cars?.slice(0, index), car, ...cars?.slice(index + 1)]); // creates a new array with the new value, and all other array items
 		});
 
 		// Clears time
@@ -58,12 +64,33 @@ export default function Home() {
 		});
 
 		// Gets cars data
-		socket.on("get-cars", (data) => {
-			setCars(data);
+		socket.on("get-cars", (Cars: Car[]) => {
+			// If cars length is the same, meaning no update, return
+			if (Cars.length == cars.length) {
+				return;
+			}
+			setCars(Cars);
+		});
+
+		// Add new racer
+		socket.on("add-racer", (data: Car) => {
+			setCars((cars) => [...cars, data]);
 		});
 
 		return null;
 	};
+
+	// Send emit to update cars when cars list changes
+	useEffect(() => {
+		if (initialRender.current) {
+			initialRender.current = false;
+			console.log("initial render skipped");
+			return;
+		}
+		localStorage.setItem("cars", JSON.stringify(cars));
+		socket?.emit("update-cars", cars);
+		console.log(cars);
+	}, [cars]);
 
 	// For time interval 1
 	useEffect(() => {
@@ -85,15 +112,17 @@ export default function Home() {
 		return () => clearInterval(intervalId);
 	}, [isRunning2, time2]);
 
-	return (
-		<div className="flex flex-col h-full bg-slate-900 gap-14">
+	return !isLoading ? (
+		<div className="flex flex-col h-full gap-10 bg-zinc-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
-				<div className="relative font-mono text-center text-white text-7xl italic flex gap-5">
+				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
 					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image> Pettit Grand Prix
 					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image>
 				</div>
 				<Link href="/admin">
-					<button className="absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">Admin Panel</button>
+					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
+						Admin Panel
+					</button>
 				</Link>
 			</div>
 			<div className="flex flex-col items-center justify-center h-full">
@@ -105,7 +134,7 @@ export default function Home() {
 								<div className="flex flex-col gap-3">
 									<div className="flex gap-1 text-4xl justify-between">
 										<span className="w-[10px]"></span>
-										<span>{car.name}</span>
+										<span>{car.name + " " + car.carNum}</span>
 										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
 									</div>
 									<span
@@ -145,5 +174,7 @@ export default function Home() {
 				</div>
 			</div>
 		</div>
+	) : (
+		<div className="h-full bg-slate-900"></div>
 	);
 }
