@@ -1,20 +1,25 @@
 import socketio
-import socket
+
 sio = socketio.Client()
+
 
 @sio.event
 def connect():
-    print('Connected')
-    sio.emit("setup",{'Racer Name', 'Group Number','video target'})
+    print("Connected")
+    name = input("Racer name? ")
+    race_number = input("Team Number? ")
+    sio.emit("setup-racer", {"name": name, "number": race_number})
+    print("Sent.")
+
 
 @sio.event
 def disconnect():
-    print('Disconnected')
+    print("Disconnected")
 
-@sio.on('message')
+
+@sio.on("message")
 def on_message(data):
     print(data)
 
-if __name__ == '__main__':
-    sio.connect('http://localhost:3000')
-    sio.wait()
+
+sio.connect("http://localhost:3000")

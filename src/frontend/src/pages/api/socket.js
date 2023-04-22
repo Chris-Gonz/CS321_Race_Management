@@ -33,12 +33,12 @@ export default function SocketHandler(req, res) {
 		});
 
 		// Racer listeners
-		socket.on("message", (data) => {
-			console.log(data);
-			io.emit("message", "Hello client!");
-		});
 
-		socket.on("setup", (data) => {});
+		// Send setup signal to admin page to create new car
+		socket.on("setup-racer", (data) => {
+			console.log("setting up new racer");
+			io.emit("get-setup", data);
+		});
 
 		// need start/stop signal from us to them
 

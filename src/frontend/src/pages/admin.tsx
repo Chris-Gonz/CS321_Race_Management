@@ -1,5 +1,6 @@
 import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
+import { Car } from "@/interface/Cars";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -7,7 +8,7 @@ import { io, Socket } from "socket.io-client";
 let socket: Socket;
 
 export default function Admin() {
-	const [cars, setCars] = useState<typeof Cars>(Cars);
+	const [cars, setCars] = useState<Car[]>([]);
 
 	// Use state for start/stop toggle button
 	const [isStart, setStart] = useState(false);
@@ -27,13 +28,36 @@ export default function Admin() {
 	const socketInitializer = async () => {
 		await fetch("/api/socket");
 		socket = io();
+
 		socket.on("connect", () => {
 			setStart(localStorage.getItem("start") === "true");
+		});
+
+		// Setup new racer
+		socket.on("setup-racer", (data) => {
+			createNewRacer(data);
 		});
 
 		return null;
 	};
 
+	// Create new racer
+	const createNewRacer = (data: any) => {
+		const newRacer: Car = {
+			carNum: data.number,
+			name: data.name,
+			link: "", // link to video feed?
+			image: "", // placeholder for webcam
+			currentSpeed: 0,
+			connection: true,
+			LapTime: 0,
+		};
+		const updatedObjects = [...cars, newRacer];
+		setCars(updatedObjects);
+		socket.emit("update-cars", updatedObjects);
+	};
+
+	// Remove racer
 	const removeRacer = (index: number) => {
 		let indexToRemove = -1;
 		for (let i = 0; i < cars.length; i++) {
@@ -50,6 +74,7 @@ export default function Admin() {
 			// Need to set local storage later somehow
 		}
 	};
+
 	return (
 		<div className="flex w-full h-full bg-slate-900">
 			<Link href="/">

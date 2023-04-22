@@ -1,5 +1,6 @@
 import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
+import { Car } from "@/interface/Cars";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useState } from "react";
@@ -7,7 +8,7 @@ import { io, Socket } from "socket.io-client";
 
 let socket: Socket;
 export default function Home() {
-	const [cars, setCars] = useState<typeof Cars>(Cars);
+	const [cars, setCars] = useState<Car[]>([]);
 	const [isRunning1, setIsRunning1] = useState(false);
 	const [isRunning2, setIsRunning2] = useState(false);
 	const [time1, setTime1] = useState(0);
@@ -99,7 +100,7 @@ export default function Home() {
 				<div className="h-full w-[95%] flex justify-center items-center">
 					{cars.length != 0 ? (
 						cars.map((car, i) => (
-							<div key={i} className="flex flex-col items-center justify-center w-full h-[40rem] gap-3 mx-9 bg-white rounded-3xl p-3">
+							<div key={i} className="flex flex-col items-center justify-center h-[40rem] gap-3 mx-9 bg-white rounded-3xl p-3">
 								{/* Car Name and Connection Status with Time */}
 								<div className="flex flex-col gap-3">
 									<div className="flex gap-1 text-4xl justify-between">
@@ -128,13 +129,7 @@ export default function Home() {
 								{/* Video Feed Wrapper */}
 								<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-1  rounded-3xl">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									<Image
-										src={car.image}
-										alt={"Live Feed Picture"}
-										className="object-cover w-full h-auto"
-										width={600}
-										height={600}
-									/>
+									<Image src={car.image} alt={"Live Feed Picture"} className="object-cover" width={1000} height={700} />
 								</div>
 								<span className="text-3xl font-semibold text-black">{`Current Speed: ${car.currentSpeed} m/s`}</span>
 							</div>

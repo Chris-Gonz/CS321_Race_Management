@@ -4,7 +4,7 @@
 	"description": "",
 	"main": "index.js",
 	"scripts": {
-		"frontend": "cd frontend && npm run dev",
+		"frontend": "cd frontend && npm i && npm run dev",
 		"backend": "cd backend && ./mediamtx",
 		"dev": "concurrently \"npm run backend\" \"npm run frontend\""
 	},
