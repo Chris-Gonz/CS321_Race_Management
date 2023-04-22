@@ -20,12 +20,16 @@ export default function SocketHandler(req, res) {
 			io.emit("start-time");
 		});
 
-		socket.on("clear", (time) => {
-			io.emit("clear-time", time);
+		socket.on("clear", () => {
+			io.emit("clear-time");
 		});
 
 		socket.on("record-lap", (index) => {
 			io.emit("get-lap-time", index);
+		});
+
+		socket.on("update-cars", (cars) => {
+			io.emit("get-cars", cars);
 		});
 
 		// Racer listeners

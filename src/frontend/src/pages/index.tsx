@@ -24,8 +24,8 @@ export default function Home() {
 		const socket = io();
 
 		socket.on("connect", () => {
-			setIsRunning1(localStorage.getItem("toggle1") === "true");
-			setIsRunning2(localStorage.getItem("toggle2") === "true");
+			setIsRunning1(localStorage.getItem("running1") === "true");
+			setIsRunning2(localStorage.getItem("running2") === "true");
 			setTime1(parseInt(localStorage.getItem("time1") || "0"));
 			setTime2(parseInt(localStorage.getItem("time2") || "0"));
 			console.log("connected");
@@ -35,8 +35,8 @@ export default function Home() {
 			setIsRunning2(true);
 		});
 
-		// Stop time given index
-		socket.on("stop-time", (index) => {
+		// Stop one of the racer's time given index
+		socket.on("get-lap-time", (index) => {
 			if (index == 0) {
 				setIsRunning1(false);
 			} else {
@@ -50,8 +50,15 @@ export default function Home() {
 
 		// Clears time
 		socket.on("clear-time", () => {
+			setIsRunning1(false);
+			setIsRunning2(false);
 			setTime1(0);
 			setTime2(0);
+		});
+
+		// Gets cars data
+		socket.on("get-cars", (data) => {
+			setCars(data);
 		});
 
 		return null;
@@ -67,11 +74,11 @@ export default function Home() {
 		return () => clearInterval(intervalId);
 	}, [isRunning1, time1]);
 
-	// For time interval 2
+	//For time interval 2
 	useEffect(() => {
 		let intervalId: any;
 		if (isRunning2) {
-			intervalId = setInterval(() => setTime1(time2 + 10), 10);
+			intervalId = setInterval(() => setTime2(time2 + 10), 10);
 			localStorage.setItem("time2", time2.toString());
 		}
 		return () => clearInterval(intervalId);
@@ -80,53 +87,66 @@ export default function Home() {
 	return (
 		<div className="flex flex-col h-full bg-slate-900 gap-14">
 			<div className="flex items-center justify-center w-full mt-5 ">
-				<div className="relative font-mono text-center text-white text-7xl">
-					🏁 Grand Prix 🏁
+				<div className="relative font-mono text-center text-white text-7xl italic flex gap-5">
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image> Pettit Grand Prix
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image>
 				</div>
 				<Link href="/admin">
-					<button className="absolute p-3 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
-						Admin Panel
-					</button>
+					<button className="absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">Admin Panel</button>
 				</Link>
 			</div>
 			<div className="flex flex-col items-center justify-center h-full">
-				{/* Video Feed Wrapper */}
 				<div className="h-full w-[95%] flex justify-center items-center">
-					{Cars.map((Cars, i) => (
-						<div
-							key={i}
-							className="flex flex-col items-center justify-center w-full h-[40rem] gap-3 mx-9 bg-white rounded-3xl p-3"
-						>
-							<div className="flex gap-7 font-mono text-4xl font-black text-center text-black ">
-								<div className="flex items-center">
-									<div
-										className={`h-[15px] w-[15px] ${
-											Cars.connection
-												? "bg-green-500"
-												: "bg-red-500"
-										} rounded-full`}
+					{cars.length != 0 ? (
+						cars.map((car, i) => (
+							<div key={i} className="flex flex-col items-center justify-center w-full h-[40rem] gap-3 mx-9 bg-white rounded-3xl p-3">
+								{/* Car Name and Connection Status with Time */}
+								<div className="flex flex-col gap-3">
+									<div className="flex gap-1 text-4xl justify-between">
+										<span className="w-[10px]"></span>
+										<span>{car.name}</span>
+										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
+									</div>
+									<span
+										className={`${
+											time1 || time2 != 0
+												? i == 0
+													? isRunning1
+														? "text-red-500"
+														: "text-green-500"
+													: isRunning2
+													? "text-red-500"
+													: "text-green-500"
+												: "text-black"
+										} text-5xl`}
+									>
+										<div className="w-full bg-gray-100  rounded-xl p-2 border-2 border-black">
+											<StopWatch time={i == 0 ? time1 : time2} />
+										</div>
+									</span>
+								</div>
+								{/* Video Feed Wrapper */}
+								<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-1  rounded-3xl">
+									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
+									<Image
+										src={car.image}
+										alt={"Live Feed Picture"}
+										className="object-cover w-full h-auto"
+										width={600}
+										height={600}
 									/>
 								</div>
-								<span>{Cars.name}</span>
-								<span className="text-red-400 text-4xl">
-									<StopWatch time={i == 0 ? time1 : time2} />
-								</span>
+								<span className="text-3xl font-semibold text-black">{`Current Speed: ${car.currentSpeed} m/s`}</span>
 							</div>
-							<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-1  rounded-3xl">
-								{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-								<Image
-									src={Cars.image}
-									alt={"Live Feed Picture"}
-									className="object-cover w-full h-auto"
-									width={500}
-									height={500}
-								/>
-							</div>
-							<span className="text-3xl font-semibold text-black">
-								{`Current Speed: ${Cars.currentSpeed} m/s`}
-							</span>
+						))
+					) : (
+						<div
+							className="bg-gray-800 rounded-xl p-4
+					"
+						>
+							<div className="text-5xl font-bold text-red-600">No Cars Connected :(</div>
 						</div>
-					))}
+					)}
 				</div>
 			</div>
 		</div>
