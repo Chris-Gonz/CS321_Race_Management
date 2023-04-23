@@ -1,9 +1,9 @@
 import StopWatch from "@/components/StopWatch";
 import { Car } from "@/interface/Car";
+import { PageData } from "@/interface/PageData";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import { log } from "util";
 
 let socket: Socket;
 
@@ -13,12 +13,11 @@ export default function Admin() {
 	const [cars, setCars] = useState<Car[]>([]);
 
 	// Use state for start/stop toggle button
-	const [isStart, setStart] = useState(false);
+	const [start, setStart] = useState(false);
 
-	// Use state for finish1
-	const [finish1, setFinish1] = useState(false);
-	// Use state for finish2
-	const [finish2, setFinish2] = useState(false);
+	// Use stae for IsRunning1/2
+	const [isRunning1, setIsRunning1] = useState(false);
+	const [isRunning2, setIsRunning2] = useState(false);
 
 	// Initial render
 	const initialRender = useRef(true);
@@ -34,53 +33,20 @@ export default function Admin() {
 		socket = io();
 
 		socket.on("connect", () => {
-			setStart(localStorage.getItem("start") === "true");
-			console.log(localStorage.getItem("cars"));
-			setCars(JSON?.parse(localStorage.getItem("cars") || "[]"));
+			socket.emit("update-data");
+			console.log("admin page connected");
 			setIsLoading(false);
 		});
 
-		// Gets cars data
-		socket.on("get-cars", (Cars: Car[]) => {
-			// If cars length is the same, meaning no update, return
-			if (Cars.length == cars.length) {
-				return;
-			}
-			setCars(Cars);
-		});
-
-		// Add new racer
-		socket.on("add-racer", (data: Car) => {
-			setCars((cars) => [...cars, data]);
+		// Update page data
+		socket.on("update-page", (data: PageData) => {
+			setCars(data.cars);
+			setIsRunning1(data.running1);
+			setIsRunning2(data.running2);
+			setStart(data.start);
 		});
 
 		return null;
-	};
-
-	// Send emit to update cars when cars list changes
-	useEffect(() => {
-		if (initialRender.current) {
-			initialRender.current = false;
-			console.log("initial render skipped");
-			return;
-		}
-		localStorage.setItem("cars", JSON.stringify(cars));
-		socket?.emit("update-cars", cars);
-		console.log(cars);
-	}, [cars]);
-
-	// Remove racer
-	const removeRacer = (index: number) => {
-		for (let i = 0; i < cars.length; i++) {
-			if (cars[i] === cars[index]) {
-				const updatedObjects = [...cars];
-				updatedObjects.splice(i, 1);
-				setCars(updatedObjects);
-				localStorage.setItem("cars", JSON.stringify(updatedObjects));
-				// Need to set local storage later somehow
-				break;
-			}
-		}
 	};
 
 	return !isLoading ? (
@@ -114,21 +80,19 @@ export default function Admin() {
 													<button
 														className={`text-base ${
 															i == 0
-																? finish1
+																? !isRunning1
 																	? "bg-gray-400 pointer-events-none "
 																	: "bg-purple-500"
-																: finish2
+																: !isRunning2
 																? "bg-gray-400 pointer-events-none "
 																: "bg-purple-500"
 														} rounded-full text-white p-2`}
 														value={car.LapTime}
 														onClick={() => {
 															if (i === 0) {
-																localStorage.setItem("running1", "false");
-																setFinish1(true);
+																socket.emit("update-data", { running1: false });
 															} else {
-																localStorage.setItem("running2", "false");
-																setFinish2(true);
+																socket.emit("update-data", { running2: false });
 															}
 															socket.emit("record-lap", i);
 														}}
@@ -142,7 +106,7 @@ export default function Admin() {
 											<button
 												className="w-full p-2 bg-red-500 text-white text-center rounded-3xl"
 												onClick={() => {
-													removeRacer(i);
+													socket?.emit("remove-racer", i);
 												}}
 											>
 												Disconnect
@@ -164,14 +128,10 @@ export default function Admin() {
 						<div className="flex w-1/2 justify-center items-center gap-5">
 							<button
 								className={`py-3 px-7 text-xl font-black text-white ${
-									isStart ? "bg-gray-400 pointer-events-none " : "bg-green-800"
+									start ? "bg-gray-400 pointer-events-none" : "bg-green-800"
 								}  rounded-2xl`}
 								onClick={() => {
-									localStorage.setItem("running1", "true");
-									localStorage.setItem("running2", "true");
-									localStorage.setItem("start", "true");
-									setStart(true);
-									socket.emit("start");
+									socket.emit("update-data", { running1: true, running2: true, start: true }); // Send data to server
 								}}
 							>
 								Start
@@ -179,15 +139,7 @@ export default function Admin() {
 							<button
 								className="py-3 px-7 text-xl font-black text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600"
 								onClick={() => {
-									localStorage.setItem("running1", "false");
-									localStorage.setItem("running2", "false");
-									localStorage.setItem("time1", "0");
-									localStorage.setItem("time2", "0");
-									localStorage.setItem("start", "false");
-									setStart(false);
-									setFinish1(false);
-									setFinish2(false);
-									socket.emit("clear");
+									socket.emit("update-data", { running1: false, running2: false, start: false }); // Send data to server
 								}}
 							>
 								Reset

@@ -1,13 +1,15 @@
 import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
 import { Car } from "@/interface/Car";
+import { PageData } from "@/interface/PageData";
+import { log } from "console";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
-let socket: Socket;
 export default function Home() {
+	let socket: Socket;
 	const [isLoading, setIsLoading] = useState(true);
 	const [cars, setCars] = useState<Car[]>([]);
 	const [isRunning1, setIsRunning1] = useState(false);
@@ -27,77 +29,30 @@ export default function Home() {
 		const socket = io();
 
 		socket.on("connect", () => {
-			setCars(JSON.parse(localStorage.getItem("cars") || "[]"));
-			setIsRunning1(localStorage.getItem("running1") === "true");
-			setIsRunning2(localStorage.getItem("running2") === "true");
-			setTime1(parseInt(localStorage.getItem("time1") || "0"));
-			setTime2(parseInt(localStorage.getItem("time2") || "0"));
-			console.log("connected");
+			socket.emit("update-data");
+			console.log("index page connected");
 			setIsLoading(false);
 		});
 
-		socket.on("start-time", () => {
-			setIsRunning1(true);
-			setIsRunning2(true);
-		});
-
-		// Stop one of the racer's time given index
-		socket.on("get-lap-time", (index) => {
-			if (index == 0) {
-				setIsRunning1(false);
-			} else {
-				setIsRunning2(false);
-			}
-			let car: Car = cars[index] || {};
-			if (car !== undefined) {
-				car.LapTime = index == 0 ? time1 : time2;
-			}
-			setCars((cars) => [...cars?.slice(0, index), car, ...cars?.slice(index + 1)]); // creates a new array with the new value, and all other array items
-		});
-
-		// Clears time
-		socket.on("clear-time", () => {
-			setIsRunning1(false);
-			setIsRunning2(false);
-			setTime1(0);
-			setTime2(0);
-		});
-
-		// Gets cars data
-		socket.on("get-cars", (Cars: Car[]) => {
-			// If cars length is the same, meaning no update, return
-			if (Cars.length == cars.length) {
-				return;
-			}
-			setCars(Cars);
-		});
-
-		// Add new racer
-		socket.on("add-racer", (data: Car) => {
-			setCars((cars) => [...cars, data]);
+		socket.on("update-page", (data: PageData) => {
+			setCars(data.cars);
+			setIsRunning1(data.running1);
+			setIsRunning2(data.running2);
+			setTime1(data.time1);
+			setTime2(data.time2);
 		});
 
 		return null;
 	};
 
-	// Send emit to update cars when cars list changes
-	useEffect(() => {
-		if (initialRender.current) {
-			initialRender.current = false;
-			console.log("initial render skipped");
-			return;
-		}
-		localStorage.setItem("cars", JSON.stringify(cars));
-		socket?.emit("update-cars", cars);
-		console.log(cars);
-	}, [cars]);
-
 	// For time interval 1
 	useEffect(() => {
 		let intervalId: any;
 		if (isRunning1) {
+			console.log("still true??");
+
 			intervalId = setInterval(() => setTime1(time1 + 10), 10);
-			localStorage.setItem("time1", time1.toString());
+			socket?.emit("update-time", { time1: time1 });
 		}
 		return () => clearInterval(intervalId);
 	}, [isRunning1, time1]);
@@ -107,7 +62,7 @@ export default function Home() {
 		let intervalId: any;
 		if (isRunning2) {
 			intervalId = setInterval(() => setTime2(time2 + 10), 10);
-			localStorage.setItem("time2", time2.toString());
+			socket?.emit("update-time", { time2: time2 });
 		}
 		return () => clearInterval(intervalId);
 	}, [isRunning2, time2]);
@@ -116,8 +71,8 @@ export default function Home() {
 		<div className="flex flex-col h-full gap-10 bg-zinc-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
 				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image> Pettit Grand Prix
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15}></Image>
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
 				</div>
 				<Link href="/admin">
 					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
