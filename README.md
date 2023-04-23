@@ -20,12 +20,10 @@ This is the git hub page for the Race Management Team. Repository used to keep b
 The technology used in this project consists of the following:
 
 * Front-end:
-  * Javascript
-  * HTML
-  * (Maybe add the browser engine)
+  * Next.Js
+  * Tailwind.CSS
 * Backend:
-  * TBD
-
+  * Node.Js (Socket.IO)
 ---
 
 ## Hardware
