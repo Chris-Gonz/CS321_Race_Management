@@ -1,5 +1,6 @@
 import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
+import { log } from "console";
 import { Server } from "socket.io";
 import { Socket } from "socket.io-client";
 
@@ -25,6 +26,8 @@ export default function SocketHandler(req: any, res: any) {
 
 	io.on("connection", (socket) => {
 		/* Page listeners */
+
+		// Updates any changes to pages state
 		socket.on("update-data", (data: PageData) => {
 			if (data != null) {
 				if ("cars" in data) {
@@ -39,36 +42,53 @@ export default function SocketHandler(req: any, res: any) {
 				if ("start" in data) {
 					pageData.start = data.start;
 				}
+				if ("time1" in data) {
+					pageData.time1 = data.time1;
+				}
+				if ("time2" in data) {
+					pageData.time2 = data.time2;
+				}
 			}
 			console.log("pageData update: " + JSON.stringify(pageData));
 			io.emit("update-page", pageData);
 		});
 
-		// Update time
-		socket.on("update-time", (data) => {
-			if ("time1" in data) {
-				pageData.time1 = data.time1;
+		// Send signal to index page to lap time given index
+		socket.on("lap-time", (index) => {
+			socket.broadcast.emit("lap-time", index);
+		});
+
+		// Update lap time
+		socket.on("update-lap-time", (data) => {
+			let car = pageData.cars[data.index];
+			car.LapTime = data.time;
+			if (data.index == 0) {
+				pageData.time1 = data.time;
+			} else if (data.index == 1) {
+				pageData.time2 = data.time;
 			}
-			if ("time2" in data) {
-				pageData.time2 = data.time2;
-			}
+		});
+
+		// Clear timers
+		socket.on("clear-times", () => {
+			pageData.time1 = 0;
+			pageData.time2 = 0;
+			socket.broadcast.emit("clear-times");
 		});
 
 		// When updating page state
 		socket.on("remove-racer", (index) => {
 			pageData.cars.splice(index, 1);
 			if (pageData.cars.length == 0) {
-				pageData.running1 = false;
-				pageData.running2 = false;
-				pageData.start = false;
+				pageData = {
+					cars: [],
+					time1: 0,
+					time2: 0,
+					running1: false,
+					running2: false,
+					start: false,
+				};
 			}
-			io.emit("update-page", pageData);
-		});
-
-		// When press Record lap button on admin, seend to index page to record lap time
-		socket.on("record-lap", (index) => {
-			pageData.cars[index].LapTime = index == 0 ? pageData.time1 : pageData.time2;
-			console.log(`lap time for racer ${index}: ` + pageData.cars[index].LapTime);
 			io.emit("update-page", pageData);
 		});
 
@@ -76,7 +96,12 @@ export default function SocketHandler(req: any, res: any) {
 
 		// Send setup signal to admin page to create new car
 		socket.on("setup-racer", (data) => {
-			console.log("setting up new racer");
+			// If there are already 2 cars, don't add another
+			if (pageData.cars.length == 2) {
+				console.log("Max amount of racers reached for this race. Not adding new racer.");
+				return;
+			}
+			console.log("Adding new racer");
 			const newRacer: Car = {
 				carNum: data.number,
 				name: data.name,

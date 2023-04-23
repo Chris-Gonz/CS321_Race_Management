@@ -1,8 +1,6 @@
-import { Cars } from "@/components/data/Cars";
 import StopWatch from "@/components/StopWatch";
 import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
-import { log } from "console";
 import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
@@ -16,6 +14,7 @@ export default function Home() {
 	const [isRunning2, setIsRunning2] = useState(false);
 	const [time1, setTime1] = useState(0);
 	const [time2, setTime2] = useState(0);
+	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
 	// Use effect for setting the time
@@ -38,8 +37,23 @@ export default function Home() {
 			setCars(data.cars);
 			setIsRunning1(data.running1);
 			setIsRunning2(data.running2);
-			setTime1(data.time1);
-			setTime2(data.time2);
+			// If did not start yet, and time 1 is not 0, then set the time
+			// First case: when second racer ends, the start is false and time2 is not 0
+			// Second case: when
+			if (initialRender.current) {
+				setTime1(data.time1);
+				setTime2(data.time2);
+				initialRender.current = false;
+			}
+		});
+
+		socket.on("clear-times", () => {
+			setTime1(0);
+			setTime2(0);
+		});
+
+		socket.on("lap-time", (index) => {
+			setRecordLapTime(true);
 		});
 
 		return null;
@@ -48,24 +62,33 @@ export default function Home() {
 	// For time interval 1
 	useEffect(() => {
 		let intervalId: any;
-		if (isRunning1) {
-			console.log("still true??");
 
-			intervalId = setInterval(() => setTime1(time1 + 10), 10);
-			socket?.emit("update-time", { time1: time1 });
+		if (isRunning1) {
+			intervalId = setInterval(() => setTime1((time1) => time1 + 10), 10);
+		}
+		if (recordLapTime && !isRunning1) {
+			console.log("time1: " + time1);
+			setTime1(time1);
+			io().emit("update-lap-time", { index: 0, time: time1 });
+			setRecordLapTime(false);
 		}
 		return () => clearInterval(intervalId);
-	}, [isRunning1, time1]);
+	}, [isRunning1, time1, recordLapTime]);
 
 	//For time interval 2
 	useEffect(() => {
 		let intervalId: any;
 		if (isRunning2) {
 			intervalId = setInterval(() => setTime2(time2 + 10), 10);
-			socket?.emit("update-time", { time2: time2 });
+		}
+		if (recordLapTime && !isRunning2) {
+			console.log("time2: " + time2);
+			setTime2(time2);
+			io().emit("update-lap-time", { index: 1, time: time2 });
+			setRecordLapTime(false);
 		}
 		return () => clearInterval(intervalId);
-	}, [isRunning2, time2]);
+	}, [isRunning2, time2, recordLapTime]);
 
 	return !isLoading ? (
 		<div className="flex flex-col h-full gap-10 bg-zinc-900">

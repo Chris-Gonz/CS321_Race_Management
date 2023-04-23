@@ -91,10 +91,16 @@ export default function Admin() {
 														onClick={() => {
 															if (i === 0) {
 																socket.emit("update-data", { running1: false });
-															} else {
+																if (!isRunning2) {
+																	socket.emit("update-data", { start: false });
+																}
+															} else if (i === 1) {
 																socket.emit("update-data", { running2: false });
+																if (!isRunning1) {
+																	socket.emit("update-data", { start: false });
+																}
 															}
-															socket.emit("record-lap", i);
+															socket.emit("lap-time", i);
 														}}
 													>
 														Stop Time
@@ -140,6 +146,7 @@ export default function Admin() {
 								className="py-3 px-7 text-xl font-black text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600"
 								onClick={() => {
 									socket.emit("update-data", { running1: false, running2: false, start: false }); // Send data to server
+									socket.emit("clear-times");
 								}}
 							>
 								Reset
