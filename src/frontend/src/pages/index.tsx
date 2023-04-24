@@ -1,10 +1,10 @@
 import StopWatch from "@/components/StopWatch";
 import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
+import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
-import Imagey from "next/image";
 
 export default function Home() {
 	let socket: Socket;
@@ -17,10 +17,6 @@ export default function Home() {
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
-
-	// Set up canvas
-	const canvasRef = useRef<HTMLCanvasElement>(null);
-
 	// Use effect for setting the time
 	useEffect(() => {
 		socketInitializer();
@@ -30,14 +26,6 @@ export default function Home() {
 	const socketInitializer = async () => {
 		await fetch("/api/socket");
 		const socket = io();
-		let context: CanvasRenderingContext2D | null;
-		let img: CanvasImageSource;
-		let canvas: HTMLCanvasElement;
-		if (canvasRef.current) {
-			const canvas = canvasRef.current;
-			context = canvas.getContext("2d");
-			img = new Image();
-		}
 
 		socket.on("connect", () => {
 			socket.emit("update-data");
@@ -66,11 +54,6 @@ export default function Home() {
 			setRecordLapTime(true);
 		});
 
-		// Handle frames
-		socket.on("frame", (frame) => {
-			context?.drawImage(img, 0, 0, canvas?.width, canvas?.height);
-			console.log("frame received");
-		});
 		return null;
 	};
 
@@ -109,8 +92,8 @@ export default function Home() {
 		<div className="flex flex-col h-full gap-10 bg-neutral-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
 				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
-					<Imagey src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Imagey> Pettit Grand Prix
-					<Imagey src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Imagey>
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
 				</div>
 				<Link href="/admin">
 					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
@@ -158,8 +141,7 @@ export default function Home() {
 								{/* Video Feed Wrapper */}
 								<div className="flex justify-center w-full mt-5 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									{/* <iframe className="object-contain bg-black" src="" width={900} height={700} /> */}
-									<canvas className="object-contain bg-black" width={900} height={700} ref={canvasRef} />
+									<iframe className="object-contain bg-black" src="" width={900} height={700} />
 								</div>
 								<span className="text-3xl font-semibold text-black">{`${car.currentSpeed} rpm`}</span>
 							</div>
