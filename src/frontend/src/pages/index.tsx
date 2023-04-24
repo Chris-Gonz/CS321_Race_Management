@@ -4,6 +4,7 @@ import { PageData } from "@/interface/PageData";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
+import Imagey from "next/image";
 
 export default function Home() {
 	let socket: Socket;
@@ -108,8 +109,8 @@ export default function Home() {
 		<div className="flex flex-col h-full gap-10 bg-neutral-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
 				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
+					<Imagey src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Imagey> Pettit Grand Prix
+					<Imagey src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Imagey>
 				</div>
 				<Link href="/admin">
 					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
