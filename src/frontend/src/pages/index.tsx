@@ -1,7 +1,6 @@
 import StopWatch from "@/components/StopWatch";
 import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
-import Image from "next/image";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
@@ -17,6 +16,10 @@ export default function Home() {
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
+
+	// Set up canvas
+	const canvasRef = useRef<HTMLCanvasElement>(null);
+
 	// Use effect for setting the time
 	useEffect(() => {
 		socketInitializer();
@@ -26,6 +29,14 @@ export default function Home() {
 	const socketInitializer = async () => {
 		await fetch("/api/socket");
 		const socket = io();
+		let context: CanvasRenderingContext2D | null;
+		let img: CanvasImageSource;
+		let canvas: HTMLCanvasElement;
+		if (canvasRef.current) {
+			const canvas = canvasRef.current;
+			context = canvas.getContext("2d");
+			img = new Image();
+		}
 
 		socket.on("connect", () => {
 			socket.emit("update-data");
@@ -54,6 +65,11 @@ export default function Home() {
 			setRecordLapTime(true);
 		});
 
+		// Handle frames
+		socket.on("frame", (frame) => {
+			context?.drawImage(img, 0, 0, canvas?.width, canvas?.height);
+			console.log("frame received");
+		});
 		return null;
 	};
 
@@ -113,7 +129,9 @@ export default function Home() {
 								<div className="flex flex-col gap-5">
 									<div className="flex gap-1 justify-between">
 										<span className="w-[10px]"></span>
-										<span className="text-6xl">{"Team " + car.name + " " + car.carNum}</span>
+										<span className="text-6xl underline decoration-2 underline-offset-4">
+											{"Team " + car.name + " " + car.carNum}
+										</span>
 										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
 									</div>
 									<span
@@ -139,7 +157,8 @@ export default function Home() {
 								{/* Video Feed Wrapper */}
 								<div className="flex justify-center w-full mt-5 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									<Image src={car.image} alt={"Live Feed Picture"} className="object-cover" width={1000} height={700} />
+									{/* <iframe className="object-contain bg-black" src="" width={900} height={700} /> */}
+									<canvas className="object-contain bg-black" width={900} height={700} ref={canvasRef} />
 								</div>
 								<span className="text-3xl font-semibold text-black">{`${car.currentSpeed} rpm`}</span>
 							</div>
