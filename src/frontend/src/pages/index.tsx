@@ -141,7 +141,7 @@ export default function Home() {
 								{/* Video Feed Wrapper */}
 								<div className="flex justify-center w-full mt-5 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									<iframe className="object-contain bg-black" src="" width={900} height={700} />
+									<iframe className="object-contain bg-black" src={car.link} width={900} height={700} />
 								</div>
 								<span className="text-3xl font-semibold text-black">{`${car.currentSpeed} rpm`}</span>
 							</div>
