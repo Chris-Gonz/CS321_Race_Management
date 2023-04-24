@@ -38,8 +38,6 @@ export default function Home() {
 			setIsRunning1(data.running1);
 			setIsRunning2(data.running2);
 			// If did not start yet, and time 1 is not 0, then set the time
-			// First case: when second racer ends, the start is false and time2 is not 0
-			// Second case: when
 			if (initialRender.current) {
 				setTime1(data.time1);
 				setTime2(data.time2);
@@ -91,32 +89,35 @@ export default function Home() {
 	}, [isRunning2, time2, recordLapTime]);
 
 	return !isLoading ? (
-		<div className="flex flex-col h-full gap-10 bg-zinc-900">
+		<div className="flex flex-col h-full gap-10 bg-neutral-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
 				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
 					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
 					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
 				</div>
 				<Link href="/admin">
-					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
+					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
 						Admin Panel
 					</button>
 				</Link>
 			</div>
 			<div className="flex flex-col items-center justify-center h-full">
-				<div className="h-full w-[95%] flex justify-center items-center">
+				<div className="h-full w-[95%] flex justify-center items-center gap-4">
 					{cars.length != 0 ? (
 						cars.map((car, i) => (
-							<div key={i} className="flex flex-col items-center justify-center h-[40rem] gap-3 mx-9 bg-white rounded-3xl p-3">
+							<div
+								key={i}
+								className="flex flex-col items-center justify-center h-[45rem] rounded-[20px] bg-white py-3 shadow-2xl shadow-white/25"
+							>
 								{/* Car Name and Connection Status with Time */}
-								<div className="flex flex-col gap-3">
-									<div className="flex gap-1 text-4xl justify-between">
+								<div className="flex flex-col gap-5">
+									<div className="flex gap-1 justify-between">
 										<span className="w-[10px]"></span>
-										<span>{car.name + " " + car.carNum}</span>
+										<span className="text-6xl">{"Team " + car.name + " " + car.carNum}</span>
 										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
 									</div>
 									<span
-										className={`${
+										className={` ${
 											time1 || time2 != 0
 												? i == 0
 													? isRunning1
@@ -125,34 +126,43 @@ export default function Home() {
 													: isRunning2
 													? "text-red-500"
 													: "text-green-500"
-												: "text-black"
+												: "text-white"
 										} text-5xl`}
 									>
-										<div className="w-full bg-gray-100  rounded-xl p-2 border-2 border-black">
-											<StopWatch time={i == 0 ? time1 : time2} />
+										<div className="w-full flex justify-center">
+											<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
+												<StopWatch time={i == 0 ? time1 : time2} />
+											</div>
 										</div>
 									</span>
 								</div>
 								{/* Video Feed Wrapper */}
-								<div className="flex justify-center w-4/5 m-5 overflow-hidden bg-white border-1  rounded-3xl">
+								<div className="flex justify-center w-full mt-5 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
 									<Image src={car.image} alt={"Live Feed Picture"} className="object-cover" width={1000} height={700} />
 								</div>
-								<span className="text-3xl font-semibold text-black">{`Current Speed: ${car.currentSpeed} m/s`}</span>
+								<span className="text-3xl font-semibold text-black">{`${car.currentSpeed} rpm`}</span>
 							</div>
 						))
 					) : (
 						<div
-							className="bg-gray-800 rounded-xl p-4
+							className=" rounded-xl p-4 flex items-center justify-center flex-col gap-4
 					"
 						>
-							<div className="text-5xl font-bold text-red-600">No Cars Connected :(</div>
+							<div className="text-2xl text-red-600 font-bold">No Cars Connected. </div>
+							<div className="w-[16rem] rounded-md overflow-hidden">
+								<img
+									className="w-full h-auto
+									object-contain"
+									src="https://media.tenor.com/scX-kVPwUn8AAAAC/this-is-fine.gif"
+								></img>
+							</div>
 						</div>
 					)}
 				</div>
 			</div>
 		</div>
 	) : (
-		<div className="h-full bg-slate-900"></div>
+		<div className="h-full bg-neutral-900"></div>
 	);
 }

@@ -31,8 +31,8 @@ class RaceConnection:
         self.connected = False
 
     def racer_setup(self):
-        name = input("Racer name?")
-        race_number = input("Team number?")
+        name = input("Racer name? ")
+        race_number = input("Team number? ")
         self.sio.emit("setup-racer", {"name": name, "number": race_number})
 
     def connect_to_RM(self):
@@ -53,12 +53,14 @@ class RaceConnection:
         self.connect_to_RM()
 
         while True:
-            command = input("To enter a new car, type n, else type q to quit.")
+            command = input("To enter a new car, type n, else type q to quit. ")
             if command.lower() == "n":
                 self.racer_setup()
-                break
             elif command.lower() == "q":
                 print("No connection established.")
                 break
             else:
                 print("Invalid command, try again!")
+
+racer = RaceConnection("localhost")
+racer.start()
