@@ -14,6 +14,8 @@ export default function Home() {
 	const [isRunning2, setIsRunning2] = useState(false);
 	const [time1, setTime1] = useState(0);
 	const [time2, setTime2] = useState(0);
+	const [penalties1, setPenalties1] = useState(0);
+	const [penalties2, setPenalties2] = useState(0);
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
@@ -109,7 +111,7 @@ export default function Home() {
 								key={i}
 								className="flex flex-col items-center justify-center h-[45rem] rounded-[20px] bg-white py-3 shadow-2xl shadow-white/25"
 							>
-								{/* Car Name and Connection Status with Time */}
+								{/* Car Name and Connection Status with Time 7 Penalties*/}
 								<div className="flex flex-col gap-5">
 									<div className="flex gap-1 justify-between">
 										<span className="w-[10px]"></span>
@@ -131,11 +133,20 @@ export default function Home() {
 												: "text-white"
 										} text-5xl`}
 									>
-										<div className="w-full flex justify-center">
-											<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
-												<StopWatch time={i == 0 ? time1 : time2} />
+										<div className="flex w-100 justify-center items-center gap-3">
+											<div className="w-20 flex justify-left">
+												<div className="text-center w-[15rem] bg-red-600  rounded-xl p-2 border-2 border-neutral-100">
+													0
+												</div>
+											</div>
+
+											<div className="w-full flex justify-center">
+												<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
+													<StopWatch time={i == 0 ? time1 : time2} />
+												</div>
 											</div>
 										</div>
+
 									</span>
 								</div>
 								{/* Video Feed Wrapper */}

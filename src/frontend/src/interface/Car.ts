@@ -3,6 +3,7 @@ export interface Car {
 	name: string;
 	link: string;
 	currentSpeed: number;
+	penalties: number;
 	connection: boolean;
 	LapTime: number;
 }

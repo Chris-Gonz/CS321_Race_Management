@@ -9,6 +9,8 @@ let pageData: PageData = {
 	cars: [],
 	time1: 0,
 	time2: 0,
+	penalties1: 0,
+	penalties2: 0,
 	running1: false,
 	running2: false,
 	start: false,
@@ -48,6 +50,12 @@ export default function SocketHandler(req: any, res: any) {
 				if ("time2" in data) {
 					pageData.time2 = data.time2;
 				}
+				if ("penalties1" in data) {
+					pageData.penalties1 = data.penalties1;
+				}
+				if ("penalties2" in data) {
+					pageData.penalties2 = data.penalties2;
+				}
 			}
 			console.log("pageData update: " + JSON.stringify(pageData));
 			io.emit("update-page", pageData);
@@ -84,6 +92,8 @@ export default function SocketHandler(req: any, res: any) {
 					cars: [],
 					time1: 0,
 					time2: 0,
+					penalties1: 0,
+					penalties2: 0,
 					running1: false,
 					running2: false,
 					start: false,
@@ -107,6 +117,7 @@ export default function SocketHandler(req: any, res: any) {
 				name: data.name,
 				link: pageData.cars.length == 0 ? "http://localhost:8889/optimize1" : "http://localhost:8889/optimize2", // link to video feed?
 				currentSpeed: 0,
+				penalties: 0,
 				connection: true,
 				LapTime: 0,
 			};

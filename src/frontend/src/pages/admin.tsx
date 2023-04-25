@@ -74,34 +74,66 @@ export default function Admin() {
 											>
 												{car.connection ? "Connected" : "Not Connected"}
 											</span>
-											<button
-												className={`text-lg ${
-													i == 0
-														? !isRunning1
+
+											<div className="flex w-100 justify-center items-center gap-3">
+												<button
+													className={`text-lg ${
+														i == 0
+															? !isRunning1
+																? "bg-gray-400 pointer-events-none "
+																: "bg-red-500 hover:bg-red-600"
+															: !isRunning2
+															? "bg-gray-400 pointer-events-none "
+															: "bg-red-500 hover:bg-red-600"
+													} rounded-3xl text-white p-2`}
+													value={car.LapTime}
+													onClick={() => {
+														if (i === 0) {
+															socket.emit("update-data", { running1: false });
+															if (!isRunning2) {
+																socket.emit("update-data", { start: false });
+															}
+														} else if (i === 1) {
+															socket.emit("update-data", { running2: false });
+															if (!isRunning1) {
+																socket.emit("update-data", { start: false });
+															}
+														}
+														socket.emit("lap-time", i);
+													}}
+												>
+													Add Penalty
+												</button>
+
+												<button
+													className={`text-lg ${
+														i == 0
+															? !isRunning1
+																? "bg-gray-400 pointer-events-none "
+																: "bg-purple-500 hover:bg-purple-600"
+															: !isRunning2
 															? "bg-gray-400 pointer-events-none "
 															: "bg-purple-500 hover:bg-purple-600"
-														: !isRunning2
-														? "bg-gray-400 pointer-events-none "
-														: "bg-purple-500 hover:bg-purple-600"
-												} rounded-full text-white p-2`}
-												value={car.LapTime}
-												onClick={() => {
-													if (i === 0) {
-														socket.emit("update-data", { running1: false });
-														if (!isRunning2) {
-															socket.emit("update-data", { start: false });
+													} rounded-3xl text-white p-2`}
+													value={car.LapTime}
+													onClick={() => {
+														if (i === 0) {
+															socket.emit("update-data", { running1: false });
+															if (!isRunning2) {
+																socket.emit("update-data", { start: false });
+															}
+														} else if (i === 1) {
+															socket.emit("update-data", { running2: false });
+															if (!isRunning1) {
+																socket.emit("update-data", { start: false });
+															}
 														}
-													} else if (i === 1) {
-														socket.emit("update-data", { running2: false });
-														if (!isRunning1) {
-															socket.emit("update-data", { start: false });
-														}
-													}
-													socket.emit("lap-time", i);
-												}}
-											>
-												Stop Time
-											</button>
+														socket.emit("lap-time", i);
+													}}
+												>
+													Stop Time
+												</button>
+											</div>
 										</div>
 									</div>
 									<div>
