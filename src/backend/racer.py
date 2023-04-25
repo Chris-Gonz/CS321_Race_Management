@@ -3,6 +3,7 @@ import socket
 import time
 import subprocess
 
+
 class RaceConnection:
     sio = socketio.Client()
 
@@ -19,8 +20,9 @@ class RaceConnection:
 
         self.sio.on("connect", self.on_connect)
         self.sio.on("disconnect", self.on_disconnect)
-
         self.connected = False
+        self.race_number = 0
+        self.name = ""
 
     @sio.on("server-msg")
     def on_server_mg(msg):
@@ -40,9 +42,9 @@ class RaceConnection:
         self.connected = False
 
     def racer_setup(self):
-        name = input("Racer name? ")
-        race_number = input("Team number? ")
-        self.sio.emit("setup-racer", {"name": name, "number": race_number})
+        self.name = input("Racer name? ")
+        self.race_number = input("Team number? ")
+        self.sio.emit("setup-racer", {"name": self.name, "number": self.race_number})
 
     def connect_to_RM(self):
         while not self.connected:
@@ -54,6 +56,12 @@ class RaceConnection:
                     break
                 else:
                     time.sleep(1)
+
+    def send_throttle(self, throttle):
+        self.sio.emit(
+            "send-throttle", {"teamNum": self.race_number, "throttle": throttle}
+        )
+        time.sleep(0.1)
 
     def stop(self):
         self.sio.disconnect(self.RM)
@@ -73,5 +81,9 @@ class RaceConnection:
                 print("Invalid command, try again!")
 
 
-racer = RaceConnection("localhost")
-racer.start()
+# racer = RaceConnection("localhost")
+# racer.start()
+# num = 0
+# while True:
+#     racer.send_throttle(num)
+#     num+=1

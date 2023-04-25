@@ -1,5 +1,5 @@
 export interface Car {
-	carNum: number;
+	teamNum: number;
 	name: string;
 	link: string;
 	throttleLevel: number;

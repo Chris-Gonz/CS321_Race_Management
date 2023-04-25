@@ -99,12 +99,15 @@ export default function SocketHandler(req: any, res: any) {
 				console.log(
 					"Max amount of racers reached for this race. Not adding new racer."
 				);
-				io.emit("server-msg", "Max amount of racers reached for this race. Not adding your racer.")
+				io.emit(
+					"server-msg",
+					"Max amount of racers reached for this race. Not adding your racer."
+				);
 				return;
 			}
 			console.log("Adding new racer");
 			const newRacer: Car = {
-				carNum: data.number,
+				teamNum: data.number,
 				name: data.name,
 				link:
 					pageData.cars.length == 0
@@ -117,6 +120,21 @@ export default function SocketHandler(req: any, res: any) {
 			io.emit("get-rtsp-server", pageData.cars.length == 0 ? 1 : 2);
 			pageData.cars.push(newRacer);
 			socket.broadcast.emit("update-page", pageData);
+		});
+
+		socket.on("send-throttle", (data) => {
+			// need to know which car sends data throttle (-1 to 1 or -100 to 100)
+			console.log("Received throttle: " + data.throttle + " from team " + data.teamNum);
+			if (pageData.cars[0].teamNum === data.teamNum) {
+				pageData.cars[0].throttleLevel = data.throttle;
+				io.emit("get-throttle", { index: 0, throttle: data.throttle });
+			} else if (pageData.cars[1].teamNum === data.teamNum) {
+				pageData.cars[1].throttleLevel = data.throttle;
+				io.emit("get-throttle", { index: 1, throttle: data.throttle });
+			} else {
+				console.log("Invalid team number.");
+				return;
+			}
 		});
 
 		// need start/stop signal from us to them
