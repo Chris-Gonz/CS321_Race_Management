@@ -3,8 +3,9 @@ import socket
 import time
 import subprocess
 
-
 class RaceConnection:
+    sio = socketio.Client()
+
     def __init__(self, hostname):
         try:
             subprocess.check_call(
@@ -13,7 +14,6 @@ class RaceConnection:
         except subprocess.CalledProcessError as e:
             print("Error installing python-socketio:", e)
 
-        self.sio = socketio.Client()
         self.ip_address = socket.gethostbyname(hostname)
         self.RM = "http://" + self.ip_address + ":3000"
 
@@ -21,6 +21,15 @@ class RaceConnection:
         self.sio.on("disconnect", self.on_disconnect)
 
         self.connected = False
+
+    @sio.on("server-msg")
+    def on_server_mg(msg):
+        print("Server message:", msg)
+
+    # Listen to which rtsp server to connect to
+    @sio.on("get-rtsp-server")
+    def on_get_rtsp(number):
+        print("Server to connect to:", number)
 
     def on_connect(self):
         print("Connected\n")
@@ -56,11 +65,13 @@ class RaceConnection:
             command = input("To enter a new car, type n, else type q to quit. ")
             if command.lower() == "n":
                 self.racer_setup()
+                break
             elif command.lower() == "q":
                 print("No connection established.")
                 break
             else:
                 print("Invalid command, try again!")
+
 
 racer = RaceConnection("localhost")
 racer.start()

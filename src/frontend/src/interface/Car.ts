@@ -2,7 +2,7 @@ export interface Car {
 	carNum: number;
 	name: string;
 	link: string;
-	currentSpeed: number;
+	throttleLevel: number;
 	connection: boolean;
 	LapTime: number;
 }

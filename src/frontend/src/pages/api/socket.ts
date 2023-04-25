@@ -1,8 +1,6 @@
 import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
-import { log } from "console";
 import { Server } from "socket.io";
-import { Socket } from "socket.io-client";
 
 // Need to store cars, time1, time2, running, running for index page
 let pageData: PageData = {
@@ -98,18 +96,25 @@ export default function SocketHandler(req: any, res: any) {
 		socket.on("setup-racer", (data) => {
 			// If there are already 2 cars, don't add another
 			if (pageData.cars.length == 2) {
-				console.log("Max amount of racers reached for this race. Not adding new racer.");
+				console.log(
+					"Max amount of racers reached for this race. Not adding new racer."
+				);
+				io.emit("server-msg", "Max amount of racers reached for this race. Not adding your racer.")
 				return;
 			}
 			console.log("Adding new racer");
 			const newRacer: Car = {
 				carNum: data.number,
 				name: data.name,
-				link: pageData.cars.length == 0 ? "http://localhost:8889/optimize1" : "http://localhost:8889/optimize2", // link to video feed?
-				currentSpeed: 0,
+				link:
+					pageData.cars.length == 0
+						? "http://localhost:8889/optimize1"
+						: "http://localhost:8889/optimize2", // link to video feed?
+				throttleLevel: 0,
 				connection: true,
 				LapTime: 0,
 			};
+			io.emit("get-rtsp-server", pageData.cars.length == 0 ? 1 : 2);
 			pageData.cars.push(newRacer);
 			socket.broadcast.emit("update-page", pageData);
 		});
