@@ -105,8 +105,7 @@ export default function SocketHandler(req: any, res: any) {
 			const newRacer: Car = {
 				carNum: data.number,
 				name: data.name,
-				link: "", // link to video feed?
-				image: "/RaceTrack.jpg", // placeholder for webcam
+				link: pageData.cars.length == 0 ? "http://localhost:8889/optimize1" : "http://localhost:8889/optimize2", // link to video feed?
 				currentSpeed: 0,
 				connection: true,
 				LapTime: 0,

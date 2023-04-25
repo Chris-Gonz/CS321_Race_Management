@@ -50,92 +50,78 @@ export default function Admin() {
 	};
 
 	return !isLoading ? (
-		<div className="flex w-full h-full bg-slate-900">
+		<div className="flex w-full h-full bg-neutral-900">
 			<Link href="/">
-				<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-full right-4 top-4 hover:bg-red-700">
+				<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
 					Main Panel
 				</button>
 			</Link>
 			<div className="flex items-center justify-center w-full ">
-				<div className="relative flex flex-col items-center gap-12 p-10 bg-gray-800 rounded-3xl">
-					<span className="font-bold text-red-600 text-7xl">Admin Panel</span>
-					<span className="absolute w-[70%] h-1 bg-gray-500 top-32" />
-					<div className="flex flex-row gap-32">
-						{/* EACH CAR IN THE ADMIN PANEL CONNECTION */}
-						{cars.length != 0 ? (
-							cars.map((car, i) => (
-								// Div for each car in the admin panel
-								<>
-									<div className="flex flex-col gap-3 items-center">
-										<div key={i} className="p-12 bg-white rounded-3xl w-80 ">
-											<div className="flex flex-col items-center text-3xl font-bold gap-x-5 gap-y-2">
-												<span>{car.name + " " + car.carNum}</span>
-												<span
-													className={`
+				{cars.length != 0 ? (
+					<div className="relative flex flex-col items-center gap-12 p-10 bg-neutral-800 rounded-3xl shadow-xl shadow-white/10">
+						<span className="font-bold text-red-600 text-7xl">Admin Panel</span>
+						<span className="absolute w-[70%] h-[0.2rem] bg-gray-600 top-32" />
+						<div className="flex flex-row gap-5">
+							{/* EACH CAR IN THE ADMIN PANEL CONNECTION */}
+							{cars.map((car, i) => (
+								<div className="flex flex-col gap-3 items-center">
+									<div key={i} className="p-12 bg-white rounded-3xl w-80 shadow-2xl shadow-white/10">
+										<div className="flex flex-col items-center text-3xl gap-x-5 gap-y-2">
+											<span className="font-bold">{car.name + " " + car.carNum}</span>
+											<span
+												className={`font-bold
 											${car.connection ? "text-green-500" : "text-red-500"} text-base`}
-												>
-													{car.connection ? "Connected" : "Not Connected"}
-												</span>
-												<span>
-													<button
-														className={`text-base ${
-															i == 0
-																? !isRunning1
-																	? "bg-gray-400 pointer-events-none "
-																	: "bg-purple-500"
-																: !isRunning2
-																? "bg-gray-400 pointer-events-none "
-																: "bg-purple-500"
-														} rounded-full text-white p-2`}
-														value={car.LapTime}
-														onClick={() => {
-															if (i === 0) {
-																socket.emit("update-data", { running1: false });
-																if (!isRunning2) {
-																	socket.emit("update-data", { start: false });
-																}
-															} else if (i === 1) {
-																socket.emit("update-data", { running2: false });
-																if (!isRunning1) {
-																	socket.emit("update-data", { start: false });
-																}
-															}
-															socket.emit("lap-time", i);
-														}}
-													>
-														Stop Time
-													</button>
-												</span>
-											</div>
-										</div>
-										<div>
+											>
+												{car.connection ? "Connected" : "Not Connected"}
+											</span>
 											<button
-												className="w-full p-2 bg-red-500 text-white text-center rounded-3xl"
+												className={`text-lg ${
+													i == 0
+														? !isRunning1
+															? "bg-gray-400 pointer-events-none "
+															: "bg-purple-500 hover:bg-purple-600"
+														: !isRunning2
+														? "bg-gray-400 pointer-events-none "
+														: "bg-purple-500 hover:bg-purple-600"
+												} rounded-full text-white p-2`}
+												value={car.LapTime}
 												onClick={() => {
-													socket?.emit("remove-racer", i);
+													if (i === 0) {
+														socket.emit("update-data", { running1: false });
+														if (!isRunning2) {
+															socket.emit("update-data", { start: false });
+														}
+													} else if (i === 1) {
+														socket.emit("update-data", { running2: false });
+														if (!isRunning1) {
+															socket.emit("update-data", { start: false });
+														}
+													}
+													socket.emit("lap-time", i);
 												}}
 											>
-												Disconnect
+												Stop Time
 											</button>
 										</div>
 									</div>
-								</>
-							))
-						) : (
-							<div
-								className="bg-gray-600 rounded-xl p-3
-							"
-							>
-								<div className="text-xl font-bold text-red-600">No Cars Connected :(</div>
-							</div>
-						)}
-					</div>
-					{cars.length != 0 ? (
+									<div>
+										<button
+											className="w-full p-2 bg-red-600 text-white text-lg text-center rounded-3xl hover:bg-red-700"
+											onClick={() => {
+												socket?.emit("remove-racer", i);
+											}}
+										>
+											Disconnect
+										</button>
+									</div>
+								</div>
+							))}
+						</div>
 						<div className="flex w-1/2 justify-center items-center gap-5">
 							<button
-								className={`py-3 px-7 text-xl font-black text-white ${
-									start ? "bg-gray-400 pointer-events-none" : "bg-green-800"
-								}  rounded-2xl`}
+								className={`py-3 px-7 text-lg text-white ${
+									start ? "bg-gray-400 pointer-events-none" : "bg-green-800 hover:bg-green-900"
+								}  rounded-2xl `}
 								onClick={() => {
 									socket.emit("update-data", { running1: true, running2: true, start: true }); // Send data to server
 								}}
@@ -143,7 +129,7 @@ export default function Admin() {
 								Start
 							</button>
 							<button
-								className="py-3 px-7 text-xl font-black text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600"
+								className="py-3 px-7 text-lg text-white bg-yellow-500 rounded-2xl hover:bg-yellow-600"
 								onClick={() => {
 									socket.emit("update-data", { running1: false, running2: false, start: false }); // Send data to server
 									socket.emit("clear-times");
@@ -152,13 +138,25 @@ export default function Admin() {
 								Reset
 							</button>
 						</div>
-					) : (
-						<></>
-					)}
-				</div>
+					</div>
+				) : (
+					<div
+						className="rounded-xl p-4 flex items-center justify-center flex-col gap-4
+				"
+					>
+						<div className="text-2xl text-red-600 font-bold">No Cars Connected. </div>
+						<div className="w-[16rem] rounded-md overflow-hidden">
+							<img
+								className="w-full h-auto
+								object-contain"
+								src="https://media.tenor.com/scX-kVPwUn8AAAAC/this-is-fine.gif"
+							></img>
+						</div>
+					</div>
+				)}
 			</div>
 		</div>
 	) : (
-		<div className="w-full h-full bg-slate-900"></div>
+		<div className="w-full h-full bg-neutral-900"></div>
 	);
 }
