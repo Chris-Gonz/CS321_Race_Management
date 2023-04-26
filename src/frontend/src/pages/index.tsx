@@ -39,6 +39,8 @@ export default function Home() {
 			setCars(data.cars);
 			setIsRunning1(data.running1);
 			setIsRunning2(data.running2);
+			setPenalties1(data.penalties1);
+			setPenalties2(data.penalties2);
 			// If did not start yet, and time 1 is not 0, then set the time
 			if (initialRender.current) {
 				setTime1(data.time1);
@@ -50,6 +52,11 @@ export default function Home() {
 		socket.on("clear-times", () => {
 			setTime1(0);
 			setTime2(0);
+		});
+
+		socket.on("clear-penalties", () => {
+			setPenalties1(0);
+			setPenalties2(0);
 		});
 
 		socket.on("lap-time", (index) => {
@@ -111,7 +118,7 @@ export default function Home() {
 								key={i}
 								className="flex flex-col items-center justify-center h-[45rem] rounded-[20px] bg-white py-3 shadow-2xl shadow-white/25"
 							>
-								{/* Car Name and Connection Status with Time 7 Penalties*/}
+								{/* Car Name and Connection Status with Time & Penalties*/}
 								<div className="flex flex-col gap-5">
 									<div className="flex gap-1 justify-between">
 										<span className="w-[10px]"></span>

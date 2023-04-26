@@ -86,20 +86,20 @@ export default function Admin() {
 															? "bg-gray-400 pointer-events-none "
 															: "bg-red-500 hover:bg-red-600"
 													} rounded-3xl text-white p-2`}
-													value={car.LapTime}
+													value={car.penalties}
 													onClick={() => {
 														if (i === 0) {
-															socket.emit("update-data", { running1: false });
+															socket.emit("update-data", { penalties1: 1 });
 															if (!isRunning2) {
 																socket.emit("update-data", { start: false });
 															}
 														} else if (i === 1) {
-															socket.emit("update-data", { running2: false });
+															socket.emit("update-data", { penalties2: 1 });
 															if (!isRunning1) {
 																socket.emit("update-data", { start: false });
 															}
 														}
-														socket.emit("lap-time", i);
+														socket.emit("penalties", i);
 													}}
 												>
 													Add Penalty

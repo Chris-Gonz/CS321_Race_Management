@@ -66,6 +66,12 @@ export default function SocketHandler(req: any, res: any) {
 			socket.broadcast.emit("lap-time", index);
 		});
 
+
+		// Send signal to index page to count penalties given index
+		socket.on("penalties", (index) => {
+			socket.broadcast.emit("penalties", index);
+		});
+
 		// Update lap time
 		socket.on("update-lap-time", (data) => {
 			let car = pageData.cars[data.index];
@@ -77,11 +83,32 @@ export default function SocketHandler(req: any, res: any) {
 			}
 		});
 
+
+		// Update penalties
+		socket.on("update-penalties", (data) => {
+			let car = pageData.cars[data.index];
+			car.penalties = data.penalties;
+			if (data.index == 0) {
+				pageData.penalties1 = data.penalties;
+			} else if (data.index == 1) {
+				pageData.penalties2 = data.penalties;
+			}
+		});
+
+
 		// Clear timers
 		socket.on("clear-times", () => {
 			pageData.time1 = 0;
 			pageData.time2 = 0;
 			socket.broadcast.emit("clear-times");
+		});
+
+
+		// Clear penalties
+		socket.on("clear-penalties", () => {
+			pageData.penalties1 = 0;
+			pageData.penalties2 = 0;
+			socket.broadcast.emit("clear-penalties");
 		});
 
 		// When updating page state
