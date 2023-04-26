@@ -1,8 +1,8 @@
 export interface Car {
-	carNum: number;
+	teamNum: number;
 	name: string;
 	link: string;
-	currentSpeed: number;
+	throttleLevel: number;
 	penalties: number;
 	connection: boolean;
 	LapTime: number;
