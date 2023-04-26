@@ -3,7 +3,7 @@ import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export default function Home() {
@@ -19,6 +19,7 @@ export default function Home() {
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
+
 	// Use effect for setting the time
 	useEffect(() => {
 		socketInitializer();
@@ -102,21 +103,8 @@ export default function Home() {
 		<div className="flex flex-col h-full bg-neutral-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
 				<div className="relative font-mono text-center text-white text-6xl italic flex gap-6">
-					<Image
-						src={"/pettit.jpg"}
-						alt={"Pettit"}
-						width={60}
-						height={15}
-						className="w-auto h-auto"
-					></Image>{" "}
-					Pettit Grand Prix
-					<Image
-						src={"/pettit.jpg"}
-						alt={"Pettit"}
-						width={60}
-						height={15}
-						className="w-auto h-auto"
-					></Image>
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
+					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
 				</div>
 				<Link href="/admin">
 					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
@@ -142,24 +130,13 @@ export default function Home() {
 										>
 											{car.name + " " + car.teamNum}
 										</span>
-										<div
-											className={`h-[10px] w-[10px] ${
-												car.connection
-													? "bg-green-500"
-													: "bg-red-500"
-											} rounded-full`}
-										/>
+										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
 									</div>
 								</div>
 								{/* Video Feed Wrapper */}
 								<div className="flex justify-center w-full mt-3 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									<iframe
-										className="object-contain bg-black"
-										src={car.link}
-										width={700}
-										height={450}
-									/>
+									<iframe className="object-contain bg-black" src={car.link} width={700} height={450} />
 								</div>
 								<span
 									className={` ${
@@ -176,18 +153,19 @@ export default function Home() {
 								>
 									<div className="w-full flex justify-center">
 										<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
-											<StopWatch
-												time={i == 0 ? time1 : time2}
-											/>
+											<StopWatch time={i == 0 ? time1 : time2} />
 										</div>
 									</div>
 								</span>
-								<span
+								<div
 									className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)]
- text-2xl font-semibold text-black my-2	"
-								>{`Throttle: ${
-									i == 0 ? throttle1 : throttle2
-								}%`}</span>
+									text-2xl font-semibold text-black flex flex-row items-center justify-center gap-1
+								"
+								>
+									<span>Throttle:</span>
+									<span className="w-[10px] my-2 text-center">{`${i == 0 ? throttle1 : throttle2}%`}</span>
+								</div>
+								<ReactSpeedometer />
 							</div>
 						))
 					) : (
@@ -195,9 +173,7 @@ export default function Home() {
 							className=" rounded-xl p-4 flex items-center justify-center flex-col gap-4
 					"
 						>
-							<div className="text-2xl text-red-600 font-bold">
-								No Cars Connected.{" "}
-							</div>
+							<div className="text-2xl text-red-600 font-bold">No Cars Connected. </div>
 							<div className="w-[16rem] rounded-md overflow-hidden">
 								<img
 									className="w-full h-auto

@@ -47,7 +47,6 @@ export default function SocketHandler(req: any, res: any) {
 					pageData.time2 = data.time2;
 				}
 			}
-			console.log("pageData update: " + JSON.stringify(pageData));
 			io.emit("update-page", pageData);
 		});
 
@@ -124,6 +123,7 @@ export default function SocketHandler(req: any, res: any) {
 
 		socket.on("send-throttle", (data) => {
 			// need to know which car sends data throttle (-1 to 1 or -100 to 100)
+			
 			console.log("Received throttle: " + data.throttle + " from team " + data.teamNum);
 			if (pageData.cars[0].teamNum === data.teamNum) {
 				pageData.cars[0].throttleLevel = data.throttle;
