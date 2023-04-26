@@ -14,6 +14,8 @@ export default function Home() {
 	const [isRunning2, setIsRunning2] = useState(false);
 	const [time1, setTime1] = useState(0);
 	const [time2, setTime2] = useState(0);
+	const [throttle1, setThrottle1] = useState(0);
+	const [throttle2, setThrottle2] = useState(0);
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
@@ -54,6 +56,14 @@ export default function Home() {
 			setRecordLapTime(true);
 		});
 
+		socket.on("get-throttle", (data) => {
+			if (data.index == 0) {
+				setThrottle1(data.throttle);
+			} else if (data.index == 1) {
+				setThrottle2(data.throttle);
+			}
+		});
+
 		return null;
 	};
 
@@ -89,11 +99,24 @@ export default function Home() {
 	}, [isRunning2, time2, recordLapTime]);
 
 	return !isLoading ? (
-		<div className="flex flex-col h-full gap-10 bg-neutral-900">
+		<div className="flex flex-col h-full bg-neutral-900">
 			<div className="flex items-center justify-center w-full mt-5 ">
-				<div className="relative font-mono text-center text-white text-7xl italic flex gap-6">
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image> Pettit Grand Prix
-					<Image src={"/pettit.jpg"} alt={"Pettit"} width={60} height={15} className="w-auto h-auto"></Image>
+				<div className="relative font-mono text-center text-white text-6xl italic flex gap-6">
+					<Image
+						src={"/pettit.jpg"}
+						alt={"Pettit"}
+						width={60}
+						height={15}
+						className="w-auto h-auto"
+					></Image>{" "}
+					Pettit Grand Prix
+					<Image
+						src={"/pettit.jpg"}
+						alt={"Pettit"}
+						width={60}
+						height={15}
+						className="w-auto h-auto"
+					></Image>
 				</div>
 				<Link href="/admin">
 					<button className="w-[120px] absolute p-2 font-bold text-white bg-red-600 rounded-xl right-4 top-4 hover:bg-red-700">
@@ -107,43 +130,64 @@ export default function Home() {
 						cars.map((car, i) => (
 							<div
 								key={i}
-								className="flex flex-col items-center justify-center h-[45rem] rounded-[20px] bg-white py-3 shadow-2xl shadow-white/25"
+								className="flex flex-col items-center justify-center h-[1/2] rounded-[20px] bg-white pt-3 shadow-2xl shadow-white/25"
 							>
 								{/* Car Name and Connection Status with Time */}
 								<div className="flex flex-col gap-5">
 									<div className="flex gap-1 justify-between">
 										<span className="w-[10px]"></span>
-										<span className="text-6xl underline decoration-2 underline-offset-4">
-											{"Team " + car.name + " " + car.carNum}
+										<span
+											className="text-6xl underline decoration-2 underline-offset-4 drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.8)]
+"
+										>
+											{car.name + " " + car.teamNum}
 										</span>
-										<div className={`h-[10px] w-[10px] ${car.connection ? "bg-green-500" : "bg-red-500"} rounded-full`} />
+										<div
+											className={`h-[10px] w-[10px] ${
+												car.connection
+													? "bg-green-500"
+													: "bg-red-500"
+											} rounded-full`}
+										/>
 									</div>
-									<span
-										className={` ${
-											time1 || time2 != 0
-												? i == 0
-													? isRunning1
-														? "text-red-500"
-														: "text-green-500"
-													: isRunning2
-													? "text-red-500"
-													: "text-green-500"
-												: "text-white"
-										} text-5xl`}
-									>
-										<div className="w-full flex justify-center">
-											<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
-												<StopWatch time={i == 0 ? time1 : time2} />
-											</div>
-										</div>
-									</span>
 								</div>
 								{/* Video Feed Wrapper */}
-								<div className="flex justify-center w-full mt-5 overflow-hidden bg-white">
+								<div className="flex justify-center w-full mt-3 overflow-hidden bg-white">
 									{/*video feed iframe  src="https://localhost:8889/webcam"*/}
-									<iframe className="object-contain bg-black" src={car.link} width={900} height={700} />
+									<iframe
+										className="object-contain bg-black"
+										src={car.link}
+										width={700}
+										height={450}
+									/>
 								</div>
-								<span className="text-3xl font-semibold text-black">{`${car.currentSpeed} rpm`}</span>
+								<span
+									className={` ${
+										time1 || time2 != 0
+											? i == 0
+												? isRunning1
+													? "text-red-500"
+													: "text-green-500"
+												: isRunning2
+												? "text-red-500"
+												: "text-green-500"
+											: "text-white"
+									} text-5xl mt-2`}
+								>
+									<div className="w-full flex justify-center">
+										<div className="text-center w-[15rem] bg-neutral-800  rounded-xl p-2 border-2 border-neutral-100">
+											<StopWatch
+												time={i == 0 ? time1 : time2}
+											/>
+										</div>
+									</div>
+								</span>
+								<span
+									className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)]
+ text-2xl font-semibold text-black my-2	"
+								>{`Throttle: ${
+									i == 0 ? throttle1 : throttle2
+								}%`}</span>
 							</div>
 						))
 					) : (
@@ -151,7 +195,9 @@ export default function Home() {
 							className=" rounded-xl p-4 flex items-center justify-center flex-col gap-4
 					"
 						>
-							<div className="text-2xl text-red-600 font-bold">No Cars Connected. </div>
+							<div className="text-2xl text-red-600 font-bold">
+								No Cars Connected.{" "}
+							</div>
 							<div className="w-[16rem] rounded-md overflow-hidden">
 								<img
 									className="w-full h-auto
