@@ -7,10 +7,12 @@ import subprocess
 # ENSURE YOU HAVE INSTALLED SOCKETIO. pip install "python-socketio[client]" is the command to do so.
 # READ THROUGH THIS CODE TO UNDERSTAND HOW YOU WILL RECEIVE THE UDP LINK WHERE THE BBB SHOULD STREAM TO!
 
+# one way to retrieve UDP link is to have a while loop that checks if sendFeed is empty until UDP link is received from RM.
 sendFeed = (
     # This is where the UDP link where your BBB needs to stream to will be stored.
     ""
 )
+
 RM_global_ip = ""
 
 
@@ -38,12 +40,10 @@ class RaceConnection:
         )  # into hostname when creating an instance of this class.
         self.sio.on("disconnect-racer", self.on_disconnect)
         self.sio.on("get-rtsp-server", self.on_get_rtsp)
-
         self.connected = False
         self.team_number = 0
         self.name = ""
         self.race_number = 0
-        self.stream_link = ""
 
     @sio.on("server-msg")
     def on_server_mg(
@@ -73,10 +73,6 @@ class RaceConnection:
         else:
             print("Could not retrieve UDP link. Please stop execution and run again.")
             exit(-1)
-
-    # GET STREAM LINK TO STREAM THE BBB CAMERA TO (UDP LINK), TO KEEP CHECKING UNTIL STREAM LINK RECEIVED, LOOP UNTIL self.stream_link != "" and then send to beagle bone black
-    def get_stream_link(self):
-        return self.stream_link
 
     def on_connect(self):
         print("Connected\n")
