@@ -43,6 +43,7 @@ class RaceConnection:
         self.team_number = 0
         self.name = ""
         self.race_number = 0
+        self.stream_link = ""
 
     @sio.on("server-msg")
     def on_server_mg(
@@ -59,9 +60,11 @@ class RaceConnection:
         if len(sendFeed) == 0 and len(RM_global_ip) != 0:
             if msg == 1:
                 sendFeed = "udp://" + RM_global_ip + ":33113"
+                self.stream_link = sendFeed
                 print(f"Stream BBB camera to this endpoint: {sendFeed}")
             elif msg == 2:
                 sendFeed = "udp://" + RM_global_ip + ":44775"
+                self.stream_link = sendFeed
                 print(f"Stream BBB camera to this endpoint: {sendFeed}")
             print(
                 "The UDP link where you should stream your camera has been loaded into RaceConnection.sendFeed. "
@@ -70,6 +73,10 @@ class RaceConnection:
         else:
             print("Could not retrieve UDP link. Please stop execution and run again.")
             exit(-1)
+
+    # GET STREAM LINK TO STREAM THE BBB CAMERA TO (UDP LINK), TO KEEP CHECKING UNTIL STREAM LINK RECEIVED, LOOP UNTIL self.stream_link != "" and then send to beagle bone black
+    def get_stream_link(self):
+        return self.stream_link
 
     def on_connect(self):
         print("Connected\n")
