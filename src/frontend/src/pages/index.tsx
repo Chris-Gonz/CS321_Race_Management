@@ -3,7 +3,7 @@ import { Car } from "@/interface/Car";
 import { PageData } from "@/interface/PageData";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { io, Socket } from "socket.io-client";
 
 export default function Home() {
@@ -19,6 +19,7 @@ export default function Home() {
 	const [recordLapTime, setRecordLapTime] = useState(false);
 	// Initial render
 	const initialRender = useRef(true);
+
 	// Use effect for setting the time
 	useEffect(() => {
 		socketInitializer();
@@ -182,12 +183,16 @@ export default function Home() {
 										</div>
 									</div>
 								</span>
-								<span
+								<div
 									className="drop-shadow-[0_1.2px_1.2px_rgba(0,0,0,0.4)]
- text-2xl font-semibold text-black my-2	"
-								>{`Throttle: ${
-									i == 0 ? throttle1 : throttle2
-								}%`}</span>
+									text-2xl font-semibold text-black flex flex-row items-center justify-center gap-1
+								"
+								>
+									<span>Throttle:</span>
+									<span className="w-[10px] my-2 text-center">{`${
+										i == 0 ? throttle1 : throttle2
+									}%`}</span>
+								</div>
 							</div>
 						))
 					) : (

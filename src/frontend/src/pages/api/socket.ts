@@ -47,7 +47,6 @@ export default function SocketHandler(req: any, res: any) {
 					pageData.time2 = data.time2;
 				}
 			}
-			console.log("pageData update: " + JSON.stringify(pageData));
 			io.emit("update-page", pageData);
 		});
 
@@ -87,6 +86,7 @@ export default function SocketHandler(req: any, res: any) {
 					start: false,
 				};
 			}
+			io.emit("disconnect-racer", index + 1);
 			io.emit("update-page", pageData);
 		});
 
@@ -111,8 +111,8 @@ export default function SocketHandler(req: any, res: any) {
 				name: data.name,
 				link:
 					pageData.cars.length == 0
-						? "http://localhost:8889/optimize1"
-						: "http://localhost:8889/optimize2", // link to video feed?
+						? "http://localhost:8889/cam1"
+						: "http://localhost:8889/cam2", // link to video feed?
 				throttleLevel: 0,
 				connection: true,
 				LapTime: 0,
@@ -124,7 +124,13 @@ export default function SocketHandler(req: any, res: any) {
 
 		socket.on("send-throttle", (data) => {
 			// need to know which car sends data throttle (-1 to 1 or -100 to 100)
-			console.log("Received throttle: " + data.throttle + " from team " + data.teamNum);
+
+			console.log(
+				"Received throttle: " +
+					data.throttle +
+					" from team " +
+					data.teamNum
+			);
 			if (pageData.cars[0].teamNum === data.teamNum) {
 				pageData.cars[0].throttleLevel = data.throttle;
 				io.emit("get-throttle", { index: 0, throttle: data.throttle });

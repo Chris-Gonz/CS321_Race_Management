@@ -164,7 +164,7 @@ hlsPartDuration: 200ms
 hlsSegmentMaxSize: 50M
 # Value of the Access-Control-Allow-Origin header provided in every HTTP response.
 # This allows to play the HLS stream from an external website.
-hlsAllowOrigin: "*"
+hlsAllowOrigin: '*'
 # List of IPs or CIDRs of proxies placed before the HLS server.
 # If the server receives a request from one of these entries, IP in logs
 # will be taken from the X-Forwarded-For header.
@@ -172,7 +172,7 @@ hlsTrustedProxies: []
 # Directory in which to save segments, instead of keeping them in the RAM.
 # This decreases performance, since reading from disk is less performant than
 # reading from RAM, but allows to save RAM.
-hlsDirectory: ""
+hlsDirectory: ''
 
 ###############################################
 # WebRTC parameters
@@ -192,7 +192,7 @@ webrtcServerKey: server.key
 webrtcServerCert: server.crt
 # Value of the Access-Control-Allow-Origin header provided in every HTTP response.
 # This allows to play the WebRTC stream from an external website.
-webrtcAllowOrigin: "*"
+webrtcAllowOrigin: '*'
 # List of IPs or CIDRs of proxies placed before the WebRTC server.
 # If the server receives a request from one of these entries, IP in logs
 # will be taken from the X-Forwarded-For header.
@@ -228,9 +228,20 @@ webrtcICETCPMuxAddress:
 # The settings under the path "all" are applied to all paths that do not match
 # another entry.
 paths:
-    cam1:
-    cam2:
-    optimize1:
-        runOnDemand: ffmpeg -i rtsp://localhost:$RTSP_PORT/cam1 -preset ultrafast -c:v vp8 -f rtsp rtsp://localhost:$RTSP_PORT/$RTSP_PATH
-    optimize2:
-        runOnDemand: ffmpeg -i rtsp://localhost:$RTSP_PORT/cam2 -preset ultrafast -c:v vp8 -f rtsp rtsp://localhost:$RTSP_PORT/$RTSP_PATH
+  cam1:  
+    runOnDemand: ffmpeg -c:v mjpeg -f mjpeg -i udp://127.0.0.1:33113 -c:v vp8 -preset ultrafast -b:v 8000k -muxdelay 0.1 -f rtsp rtsp://127.0.0.1:8554/$RTSP_PATH
+  cam2:  
+    runOnDemand: ffmpeg -c:v mjpeg -f mjpeg -i udp://127.0.0.1:44775 -c:v vp8 -preset ultrafast -b:v 8000k -muxdelay 0.1 -f rtsp rtsp://127.0.0.1:8554/$RTSP_PATH
+  ~^udp\/(.*)-([0-9]+):
+    runOnDemand: ffmpeg -c:v mjpeg -f mjpeg -i udp://127.0.0.1:$G2 -c:v vp8 -preset ultrafast -b:v 8000k -muxdelay 0.1 -f rtsp rtsp://127.0.0.1:8554/$RTSP_PATH
+
+## ffmpeg -f v4l2 -c:v mjpeg -i /dev/video0 -c:v copy -b:v 3500k -tune zerolatency -muxdelay 0.5 -g 0 -f mjpeg udp://{rtsp_ip}:{either 33113 or 44775}
+## This is the command you need to run on your BBB to relay stream to RM. RM will give you the RTSP ip in racer.py, and will send you a message stating either 1 or 2.
+## If you are sent "1", stream to the udp://{rtsp_ip}:33113 endpoint. If you are sent "2", stream to the udp://{rtsp_ip}:44775 endpoint.
+
+## It is your job to relay this information to the BBB, especially if you are opening the connection to RM on your laptop rather than the BBB.
+## For example, if you are connected to RM from your laptop and you receive the message "1", you need to tell your BBB to stream to udp://{rtsp_ip}:33113
+## If you are connected to RM from your laptop and you receive the message "2", you need to tell your BBB to stream to udp://{rtsp_ip}:33113
+
+## Please make sure to install ffmpeg. This can be done using OpenCV, but you'll have to figure out how to send to the udp address on your own. 
+## For your sanity, we just reccomend installing and using ffmpeg. IF you already have OpenCV working on your BBBs, then ffmpeg should not be too hard to install as they share the same dependencies.
